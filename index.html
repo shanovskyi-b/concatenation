@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Image Concatenation App</title>
+    <script type="text/javascript" src="./main.js"></script>
+    <style type="text/css">
+      body {
+        margin: 0;
+      }
+      *, *:after, *:before {
+        box-sizing: border-box;
+      }
+      .wrapper {
+        height: 100vh;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+      }
+      .canvas-container {
+        width: 100%;
+        flex-grow: 1;
+        margin-top: 20px;
+        overflow: scroll;;
+        background-color: grey;
+      }
+      .canvas-container::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+      }
+
+      .canvas-container::-webkit-scrollbar-track {
+        background-color: #fff;
+      }
+
+      .canvas-container::-webkit-scrollbar-thumb {
+        width: 8px;
+        height: 8px;
+        border: 1px solid #fff;
+        border-radius: 6px;
+        background-color: #ccc;
+      }
+      .canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .controls label {
+        margin-right: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="images-list" id="images-list">
+        <!-- <input class="image-field" type="file" accept="iamge/*" id="0">
+        <input class="image-field" type="file" accept="iamge/*" id="1"> -->
+      </div>
+      <div class="controls">
+        <p>Rendering mode:</p>
+        <label>
+          <input type="radio" name="rendering-mode" value="horizontal">
+          Horizontal
+        </label>
+        <label>
+          <input type="radio" name="rendering-mode" value="vertical">
+          Vertical
+        </label>
+      </div>
+      <div class="canvas-container">
+        <canvas class="canvas" id="canvas"></canvas>
+      </div>
+    </div>
+  </body>
+</html>
