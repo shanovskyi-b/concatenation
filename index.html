@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content= "width=device-width, initial-scale=1.0">
     <title>Image Concatenation App</title>
     <script type="text/javascript" src="./main.js"></script>
     <style type="text/css">
@@ -12,7 +13,7 @@
         box-sizing: border-box;
       }
       .wrapper {
-        height: 100vh;
+        min-height: 100vh;
         width: 100%;
         max-width: 900px;
         margin: 0 auto;
@@ -20,9 +21,45 @@
         display: flex;
         flex-direction: column;
       }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      .canvas-controls {
+        padding: 5px 0;
+      }
+
+      .canvas-controls p {
+        margin: 0 0 6px;
+      }
+
+      .canvas-controls label {
+        margin-right: 30px;
+      }
+
+      .images {
+        padding: 5px 0;
+      }
+
+      .image-container {
+        padding: 3px 0;
+      }
+
+      .remove-image {
+        margin-left: 20px;
+      }
+
+      .add-image {
+        margin-top: 5px;
+      }
+
       .canvas-container {
         width: 100%;
         flex-grow: 1;
+        min-height: 300px;
         margin-top: 20px;
         overflow: scroll;;
         background-color: grey;
@@ -31,11 +68,9 @@
         width: 12px;
         height: 12px;
       }
-
       .canvas-container::-webkit-scrollbar-track {
         background-color: #fff;
       }
-
       .canvas-container::-webkit-scrollbar-thumb {
         width: 8px;
         height: 8px;
@@ -43,32 +78,32 @@
         border-radius: 6px;
         background-color: #ccc;
       }
+
       .canvas {
         display: block;
         width: 100%;
         height: 100%;
       }
-      .controls label {
-        margin-right: 30px;
-      }
     </style>
   </head>
   <body>
     <div class="wrapper">
-      <div class="images" id="images">
-
-      </div>
       <div class="controls">
-        <p>Rendering mode:</p>
-        <label>
-          <input type="radio" name="rendering-mode" value="horizontal">
-          Horizontal
-        </label>
-        <label>
-          <input type="radio" name="rendering-mode" value="vertical">
-          Vertical
-        </label>
+        <div class="images" id="images"></div>
+
+        <div class="canvas-controls">
+          <p>Rendering mode:</p>
+          <label>
+            <input type="radio" name="rendering-mode" value="horizontal">
+            Horizontal
+          </label>
+          <label>
+            <input type="radio" name="rendering-mode" value="vertical">
+            Vertical
+          </label>
+        </div>
       </div>
+
       <div class="canvas-container">
         <canvas class="canvas" id="canvas"></canvas>
       </div>
