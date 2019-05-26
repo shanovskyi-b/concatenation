@@ -1,27 +1,25 @@
 'use strict';
 
 class ImageField {
-  constructor (container, onImageLoad) {
+  constructor ({onImageLoad}) {
     this.onImageLoad = onImageLoad;
     this.image = null;
     this.loaded = false;
 
-    this.initInput(container);
+    this.initInput();
   }
 
-  initInput (container) {
-    let element = document.createElement('input');
-    element.setAttribute("type", "file");
-    element.setAttribute("accept", "image/*");
+  initInput () {
+    this.element = document.createElement('input');
+    this.element.setAttribute("type", "file");
+    this.element.setAttribute("accept", "image/*");
 
-    element.addEventListener('change', (event) => {
+    this.element.addEventListener('change', (event) => {
       let files = event.target.files;
       if (!files.length) return;
       window.URL = window.URL || window.webkitURL;
       this.createImage(window.URL.createObjectURL(files[0]));
     } , false);
-
-    container.appendChild(element);
   }
 
   createImage (url) {
@@ -34,21 +32,36 @@ class ImageField {
   }
 }
 
-// class ImagesList {
-//   constructor(onImageLoad, listElement) {
-//     this.list = [];
-//     this.element = listElement;
-//     this.onImageLoad = onImageLoad;
-//   }
-//
-//   addImage() {
-//     this.list.push(new ImageField(
-//       this.onImageLoad,
-//       this.element
-//     ));
-//     this.idCounter++;
-//   }
-// }
+class ImagesList {
+  constructor({onListChange, container}) {
+    this.list = [];
+    this.element = container;
+    this.onListChange = onListChange;
+
+    this.addImage();
+    this.addImage();
+  }
+
+  addImage() {
+    let image = {
+      field: new ImageField({
+        onImageLoad: () => this.onListChange(this.getLoadedImages()),
+      }),
+      container: document.createElement('div')
+    };
+
+    image.container.appendChild(image.field.element);
+
+    this.list.push(image);
+    this.element.appendChild(image.container);
+  }
+
+  getLoadedImages() {
+    return this.list
+      .filter((element) => element.field.loaded)
+      .map((element) => element.field.image);
+  }
+}
 
 class ConcatenationCanvas {
   constructor (element) {
@@ -127,32 +140,12 @@ class ConcatenationCanvas {
   }
 }
 
-function prepareImages (images) {
-  let loadedImages = images
-    .filter((element) => element.loaded)
-    .map((element) => element.image);
-
-  return loadedImages;
-}
-
 function init () {
-  let imagesContainer = document.getElementById('images-list');
+  let imagesContainer = document.getElementById('images');
   let canvasElement = document.getElementById('canvas');
   let renderingModeInputs = document.querySelectorAll('input[name=rendering-mode]');
 
   let canvas  = new ConcatenationCanvas(canvasElement);
-
-  function createNewImage () {
-    let image = new ImageField(imagesContainer, () => {
-      canvas.drawImages(prepareImages(images));
-    });
-    return image;
-  }
-
-  let images = [
-    createNewImage(),
-    createNewImage()
-  ];
 
   renderingModeInputs.forEach( (input) => {
     if (canvas.renderingMode === input.value) {
@@ -168,9 +161,11 @@ function init () {
       }
     );
   });
-  // let images = new ImagesList(canvas.drawImage.bind(canvas), imagesElement);
-  // images.addImage();
-  // images.addImage();
+
+  let images = new ImagesList({
+    container: imagesContainer,
+    onListChange: canvas.drawImages.bind(canvas)
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);
