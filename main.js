@@ -114,13 +114,13 @@ class ConcatenationCanvas {
 
     this.renderingMode = 'horizontal';
 
-    this.drawedImages = [];
+    this.drawnImages = [];
 
     this.context = this.canvas.getContext('2d');
 
     const containerResizeOnserver = new ResizeObserver( (container) => {
-      if (this.drawedImages) {
-        this.drawImages(this.drawedImages);
+      if (this.drawnImages) {
+        this.drawImages(this.drawnImages);
       }
     })
     containerResizeOnserver.observe(this.container);
@@ -129,15 +129,10 @@ class ConcatenationCanvas {
   setRenderingMode (mode) {
     this.renderingMode = mode;
 
-    this.canvas.width = this.container.clientWidth;
-    this.canvas.height = this.container.clientHeight;
-    this.canvas.style.width = this.canvas.width + 'px';
-    this.canvas.style.height = this.canvas.height + 'px';
-
-    this.drawImages(this.drawedImages);
+    this.drawImages(this.drawnImages);
   }
 
-  updateSize (images) {
+  drawImages (images) {
     if (!images.length) return;
 
     if (this.renderingMode === 'horizontal') {
@@ -148,49 +143,42 @@ class ConcatenationCanvas {
       this.canvas.style.width = this.canvas.width + 'px';
     }
 
-    let newSize = images.reduce( (res, image) => {
+    let drawnWidth = 0, drawnHeight = 0;
+
+    // prepare images for drawing, calculate canvas new size 
+    let calculatedImages = images.map( (image) => {
+      let imageData = {
+        image,
+        x: drawnWidth,
+        y: drawnHeight,
+      };
+
       if (this.renderingMode === 'horizontal') {
-        let renderedImageWidth = image.naturalWidth * this.canvas.height / image.naturalHeight;
-        res.width += renderedImageWidth;
+        imageData.width = image.naturalWidth * this.canvas.height / image.naturalHeight;
+        imageData.height = this.canvas.height;
+        drawnWidth += imageData.width;
       } else {
-        let renderedImageHeight = image.naturalHeight * this.canvas.width / image.naturalWidth;
-        res.height += renderedImageHeight;
+        imageData.height = image.naturalHeight * this.canvas.width / image.naturalWidth;
+        imageData.width = this.canvas.width;
+        drawnHeight += imageData.height;
       }
-      return res;
-    }, {width: 0, height: 0});
 
-    if (this.renderingMode === 'horizontal') {
-      this.canvas.width = newSize.width;
-      this.canvas.style.width = newSize.width + 'px';
-    } else {
-      this.canvas.height = newSize.height;
-      this.canvas.style.height = newSize.height + 'px';
-    }
-
-  }
-
-  drawImages (images) {
-    this.updateSize(images)
-
-    let x = 0, y = 0;
-    let height = this.canvas.height;
-    let width = this.canvas.width;
-
-    images.forEach( (image) => {
-      if (this.renderingMode === 'horizontal') {
-        let renderedImageWidth = image.naturalWidth * height / image.naturalHeight;
-
-        this.context.drawImage(image, x, y, renderedImageWidth, height);
-        x += renderedImageWidth;
-      } else {
-        let renderedImageHeight = image.naturalHeight * width / image.naturalWidth;
-
-        this.context.drawImage(image, x, y, width, renderedImageHeight);
-        y += renderedImageHeight;
-      }
+      return imageData;
     });
 
-    this.drawedImages = images;
+    if (this.renderingMode === 'horizontal') {
+      this.canvas.width = drawnWidth;
+      this.canvas.style.width = drawnWidth + 'px';
+    } else {
+      this.canvas.height = drawnHeight;
+      this.canvas.style.height = drawnHeight + 'px';
+    }
+
+    calculatedImages.forEach( ({image, x, y, width, height}) => {
+      this.context.drawImage(image, x, y, width, height);
+    });
+
+    this.drawnImages = images;
   }
 }
 
