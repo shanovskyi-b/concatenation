@@ -14,12 +14,17 @@ class ImageField {
     this.element.setAttribute("type", "file");
     this.element.setAttribute("accept", "image/*");
 
-    this.element.addEventListener('change', (event) => {
-      let files = event.target.files;
-      if (!files.length) return;
-      window.URL = window.URL || window.webkitURL;
-      this.createImage(window.URL.createObjectURL(files[0]));
-    } , false);
+    this.element.addEventListener(
+      'change',
+      this.handleInputChange.bind(this)
+    );
+  }
+
+  handleInputChange (event) {
+    let files = event.target.files;
+    if (!files.length) return;
+    window.URL = window.URL || window.webkitURL;
+    this.createImage(window.URL.createObjectURL(files[0]));
   }
 
   createImage (url) {
@@ -28,6 +33,7 @@ class ImageField {
       this.loaded = true;
       this.onLoad();
     }
+
     this.image.src = url;
   }
 }
@@ -59,7 +65,7 @@ class ImagesList {
     image.removeButton.classList.add('remove-image');
     image.removeButton.addEventListener(
       'click',
-      () => this.removeImage(image)
+      this.removeImage.bind(this, image)
     );
 
     image.container.appendChild(image.field.element);
@@ -70,11 +76,16 @@ class ImagesList {
     this.element.insertBefore(image.container, this.addImageButton);
   }
 
+  removeImage(image) {
+    let index = this.list.indexOf(image);
+    if (index !== -1) {
+      this.list.splice(index, 1);
+      image.container.remove();
+      this.onChange(this.getLoadedImages());
+    }
+  }
+
   getLoadedImages() {
-    console.log('here', this.list
-      .filter((element) => element.field.loaded)
-      .map((element) => element.field.image)
-    )
     return this.list
       .filter((element) => element.field.loaded)
       .map((element) => element.field.image);
@@ -87,53 +98,49 @@ class ImagesList {
 
     this.addImageButton.addEventListener(
       'click',
-      () => this.addImage()
+      this.addImage.bind(this)
     );
 
     this.element.appendChild(this.addImageButton);
   }
-
-  removeImage(image) {
-    let index = this.list.indexOf(image);
-    if (index !== -1) {
-      this.list.splice(index, 1);
-      image.container.remove();
-      this.onChange(this.getLoadedImages());
-    }
-  }
 }
 
 class ConcatenationCanvas {
-  constructor (element) {
-    this.canvas = element;
+  constructor (container) {
+    this.container = container;
+    this.canvas = document.createElement('canvas');
 
-    this.canvas.height = this.canvas.offsetHeight;
-    this.canvas.width = this.canvas.offsetWidth;
-
-    this.initialSize = {
-      height: this.canvas.height,
-      width: this.canvas.width
-    };
+    this.container.appendChild(this.canvas);
 
     this.renderingMode = 'horizontal';
 
     this.drawedImages = [];
 
-    this.context = canvas.getContext('2d');
+    this.context = this.canvas.getContext('2d');
   }
 
   setRenderingMode (mode) {
     this.renderingMode = mode;
 
-    this.canvas.width = this.initialSize.width;
-    this.canvas.height = this.initialSize.height;
-    this.canvas.style.width = this.initialSize.width + 'px';
-    this.canvas.style.height = this.initialSize.height + 'px';
+    this.canvas.width = this.container.clientWidth;
+    this.canvas.height = this.container.clientHeight;
+    this.canvas.style.width = this.canvas.width + 'px';
+    this.canvas.style.height = this.canvas.height + 'px';
 
     this.drawImages(this.drawedImages);
   }
 
   updateSize (images) {
+    if (!images.length) return;
+
+    if (this.renderingMode === 'horizontal') {
+      this.canvas.height = this.container.clientHeight;
+      this.canvas.style.height = this.canvas.height + 'px';
+    } else {
+      this.canvas.width = this.container.clientWidth;
+      this.canvas.style.width = this.canvas.width + 'px';
+    }
+
     let newSize = images.reduce( (res, image) => {
       if (this.renderingMode === 'horizontal') {
         let renderedImageWidth = image.naturalWidth * this.canvas.height / image.naturalHeight;
@@ -182,10 +189,15 @@ class ConcatenationCanvas {
 
 function init () {
   let imagesContainer = document.getElementById('images');
-  let canvasElement = document.getElementById('canvas');
+  let canvasContainer = document.getElementById('canvas-container');
   let renderingModeInputs = document.querySelectorAll('input[name=rendering-mode]');
 
-  let canvas  = new ConcatenationCanvas(canvasElement);
+  let canvas  = new ConcatenationCanvas(canvasContainer);
+
+  let images = new ImagesList({
+    container: imagesContainer,
+    onChange: (images) => canvas.drawImages(images)
+  });
 
   renderingModeInputs.forEach( (input) => {
     if (canvas.renderingMode === input.value) {
@@ -200,11 +212,6 @@ function init () {
         }
       }
     );
-  });
-
-  let images = new ImagesList({
-    container: imagesContainer,
-    onChange: (images) => canvas.drawImages(images)
   });
 }
 
