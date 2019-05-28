@@ -117,6 +117,13 @@ class ConcatenationCanvas {
     this.drawedImages = [];
 
     this.context = this.canvas.getContext('2d');
+
+    const containerResizeOnserver = new ResizeObserver( (container) => {
+      if (this.drawedImages) {
+        this.drawImages(this.drawedImages);
+      }
+    })
+    containerResizeOnserver.observe(this.container);
   }
 
   setRenderingMode (mode) {
