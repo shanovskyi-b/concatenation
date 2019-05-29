@@ -31,7 +31,7 @@ class ImageField {
     this.image = new Image();
     this.image.onload = () => {
       this.loaded = true;
-      this.onLoad();
+      this.onLoad(this);
     }
 
     this.image.src = url;
@@ -51,29 +51,39 @@ class ImagesList {
   }
 
   addImage() {
+    let label = document.createElement('label');
+    label.innerHTML = '+';
+    label.classList.add('image__label');
+
+    let removeButton = document.createElement('button');
+    removeButton.innerHTML = 'x';
+    removeButton.classList.add('image__remover');
+
     let image = {
       field: new ImageField({
-        onLoad: () => this.onChange(this.getLoadedImages()),
+        onLoad: (imageField) => {
+          label.style.backgroundImage = "url('" + imageField.image.currentSrc + "')";
+          label.innerHTML = '';
+
+          this.onChange(this.getLoadedImages());
+        },
       }),
-      container: document.createElement('div'),
-      removeButton: document.createElement('button')
+      container: document.createElement('div')
     };
+    image.container.classList.add('image');
 
-    image.container.classList.add('image-container');
-
-    image.removeButton.innerHTML = 'Remove';
-    image.removeButton.classList.add('remove-image');
-    image.removeButton.addEventListener(
+    removeButton.addEventListener(
       'click',
       this.removeImage.bind(this, image)
     );
 
-    image.container.appendChild(image.field.element);
-    image.container.appendChild(image.removeButton);
-
-    this.list.push(image);
+    label.appendChild(image.field.element);
+    image.container.appendChild(label);
+    image.container.appendChild(removeButton);
 
     this.element.insertBefore(image.container, this.addImageButton);
+
+    this.list.push(image);
   }
 
   removeImage(image) {
@@ -145,7 +155,7 @@ class ConcatenationCanvas {
 
     let drawnWidth = 0, drawnHeight = 0;
 
-    // prepare images for drawing, calculate canvas new size 
+    // prepare images for drawing, calculate canvas new size
     let calculatedImages = images.map( (image) => {
       let imageData = {
         image,

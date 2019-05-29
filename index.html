@@ -22,13 +22,8 @@
         flex-direction: column;
       }
 
-      .controls {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-      }
-
       .canvas-controls {
+        margin-top: 20px;
         padding: 5px 0;
       }
 
@@ -40,20 +35,76 @@
         margin-right: 30px;
       }
 
+      .images-container {
+        overflow-x: auto;
+      }
+
       .images {
-        padding: 5px 0;
+        display: inline-flex;
+        flex-wrap: nowrap;
+        min-width: 100%;
+        padding: 20px;
+        background-color: #ddd;
+        border-radius: 2px;
       }
 
-      .image-container {
-        padding: 3px 0;
+      .image {
+        position: relative;
+        margin-right: 30px;
       }
 
-      .remove-image {
-        margin-left: 20px;
+      .image__label {
+        width: 80px;
+        height: 80px;
+        flex: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 2px;
+        background-color: #f5f5f5;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-size: 60px;
+        font-weight: bold;
+      }
+
+      .image__label:hover, .image__label:focus {
+        background-color: #fbfbfb;
+        color: #555;
+      }
+
+      .image__label input {
+        display: none;
+        visibility: hidden;
+      }
+
+      .image__remover {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        border-radius: 50%;
+        background-color: #aaa;
+        box-shadow: none;
+        color: #fff;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .image__remover:hover, .image__remover:focus {
+        background-color: #bfbfbf;
       }
 
       .add-image {
-        margin-top: 5px;
+        width: 80px;
+        height: 80px;
+        flex: none;
       }
 
       .canvas-container {
@@ -88,7 +139,10 @@
   <body>
     <div class="wrapper">
       <div class="controls">
-        <div class="images" id="images"></div>
+        <div class="images-container">
+          <div class="images" id="images"></div>
+        </div>
+
 
         <div class="canvas-controls">
           <p>Rendering mode:</p>
